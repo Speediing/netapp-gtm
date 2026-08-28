@@ -30,6 +30,15 @@ async function inspectHero(page) {
   const lockup = page.locator(".brand-netapp").first();
 
   await image.waitFor({ state: "visible" });
+  await image.evaluate(
+    (element) =>
+      element.complete && element.naturalWidth > 0
+        ? undefined
+        : new Promise((resolve, reject) => {
+            element.addEventListener("load", resolve, { once: true });
+            element.addEventListener("error", reject, { once: true });
+          }),
+  );
   const imageState = await image.evaluate((element) => ({
     complete: element.complete,
     naturalWidth: element.naturalWidth,
