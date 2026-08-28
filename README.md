@@ -19,10 +19,23 @@ Run the architecture and residue check:
 
 ```bash
 npm run verify:architecture
+npm run lint
+npm run build
 ```
 
 The check holds the framework versions, the scene component chain, the
 password boundary, the official wordmark hash, and the customer residue rules.
+
+With the production server running and `SITE_PASSWORD` set, run the live
+checks:
+
+```bash
+npm run verify:http
+npm run verify:ui
+```
+
+The browser check uses the installed Google Chrome and writes screenshots to
+`/tmp/netapp-gtm-verification`.
 
 ## Brand assets
 

@@ -6,3 +6,4 @@ ts	phase	decision	why	evidence	result
 2026-08-29T00:04:00Z	restyle	removed borrowed media, social proof, unused artifact types, and old brand art	the supplied NetApp watercolor is the only approved scene art	public/brand, src/data, src/components	one approved hero asset and no borrowed claims
 2026-08-29T00:08:00Z	content	made each storyboard and demo end in a required draft artifact	the final state must show completed work, not a status note	src/data/types.ts, src/data/jobs.ts	final artifact is part of the data shape
 2026-08-29T00:12:00Z	security	removed the compiled password fallback	missing deployment configuration must deny access	src/lib/auth.ts, src/app/api/login/route.ts	SITE_PASSWORD stays outside git
+2026-08-29T00:18:00Z	verification	added HTTP and real-browser checks	compile success cannot prove the gate, split workspace, final artifact, or mobile layout	scripts/verify-http.mjs, scripts/verify-ui.mjs	pending
