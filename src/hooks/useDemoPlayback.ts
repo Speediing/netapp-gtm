@@ -8,7 +8,7 @@ function participantMap(thread: DemoThread): Record<string, Participant> {
 
 function defaultDelay(message: DemoMessage, people: Record<string, Participant>) {
   if (message.delayMs) return message.delayMs;
-  if (message.kind === "draft" || message.artifact) return 2800;
+  if (message.kind === "draft") return 2800;
   if (people[message.from]?.role === "bot") {
     const chars = (message.body || "").length;
     return Math.min(2200, Math.max(1600, 1400 + chars * 8));
