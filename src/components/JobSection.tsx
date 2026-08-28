@@ -1,34 +1,25 @@
-import type { CroJob, JobId } from "@/data/types";
+import type { GtmJob } from "@/data/types";
 import { Storyboard } from "./Storyboard";
 import { ChapterPayoff } from "./ChapterPayoff";
-import { JobMore } from "./JobMore";
+import { JobDemo } from "./JobDemo";
 
-const JOB_ART: Record<JobId, string> = {
-  "standardize-room": "/brand/watercolor-room.png",
-  "legal-redlines": "/brand/watercolor-deal.png",
-  "attach-engine": "/brand/watercolor-attach.png",
-};
-
-export function JobSection({ job }: { job: CroJob }) {
-  const lastBeat = job.storyboard[job.storyboard.length - 1];
-  const payoff =
-    lastBeat?.artifact || lastBeat?.slides?.length ? lastBeat : undefined;
-  const lead = payoff ? job.storyboard.slice(0, -1) : job.storyboard;
+export function JobSection({ job }: { job: GtmJob }) {
+  const [first, second, third, payoff] = job.storyboard;
 
   return (
-    <section id={job.id} className="narrative report-section job">
+    <section
+      id={job.id}
+      className="narrative report-section job"
+      data-workflow={job.id}
+    >
       <p className="section-number">
         {String(job.number).padStart(2, "0")}
       </p>
       <div>
-        <div className="job-art" aria-hidden>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={JOB_ART[job.id]} alt="" />
-        </div>
         <div className="background-agent">
           <span className="background-agent-pulse" aria-hidden />
           <p>
-            <strong>Background agent active</strong>
+            <strong>{job.agent.name} active</strong>
             <small>
               {job.trigger} → {job.backgroundAction}
             </small>
@@ -36,11 +27,19 @@ export function JobSection({ job }: { job: CroJob }) {
         </div>
         <h2 className="job-title">{job.title}</h2>
         <p className="job-value">{job.outcome}</p>
-        <Storyboard beats={lead} />
-        {payoff ? (
-          <ChapterPayoff beat={payoff} wash={JOB_ART[job.id]} />
-        ) : null}
-        <JobMore job={job} />
+        <Storyboard beats={[first, second, third]} />
+        <ChapterPayoff beat={payoff} />
+        <div className="job-live-demo">
+          <div className="job-live-demo-head">
+            <p className="eyebrow">Live agent workspace</p>
+            <h3>Chat on the left. The agent&apos;s computer on the right.</h3>
+            <p>
+              Watch both sides move together. The final frame keeps the
+              completed draft open for review.
+            </p>
+          </div>
+          <JobDemo job={job} />
+        </div>
       </div>
     </section>
   );

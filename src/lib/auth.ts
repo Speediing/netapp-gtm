@@ -1,7 +1,8 @@
-export const AUTH_COOKIE = "datadog_cro_session";
+export const AUTH_COOKIE = "netapp_gtm_session";
 
-export function sitePassword(): string {
-  return process.env.SITE_PASSWORD || "land2expand";
+export function sitePassword(): string | null {
+  const password = process.env.SITE_PASSWORD?.trim();
+  return password || null;
 }
 
 function toHex(buffer: ArrayBuffer): string {
@@ -10,10 +11,8 @@ function toHex(buffer: ArrayBuffer): string {
     .join("");
 }
 
-export async function sessionToken(
-  password: string = sitePassword(),
-): Promise<string> {
-  const data = new TextEncoder().encode(`datadog-cro:${password}`);
+export async function sessionToken(password: string): Promise<string> {
+  const data = new TextEncoder().encode(`netapp-gtm:${password}`);
   const digest = await crypto.subtle.digest("SHA-256", data);
   return toHex(digest);
 }
@@ -21,22 +20,25 @@ export async function sessionToken(
 export async function isValidSession(
   token: string | undefined | null,
 ): Promise<boolean> {
-  if (!token) return false;
-  const expected = await sessionToken();
+  const password = sitePassword();
+  if (!token || !password) return false;
+
+  const expected = await sessionToken(password);
   if (token.length !== expected.length) return false;
+
   let mismatch = 0;
-  for (let i = 0; i < token.length; i += 1) {
-    mismatch |= token.charCodeAt(i) ^ expected.charCodeAt(i);
+  for (let index = 0; index < token.length; index += 1) {
+    mismatch |= token.charCodeAt(index) ^ expected.charCodeAt(index);
   }
   return mismatch === 0;
 }
 
-export function passwordMatches(input: string): boolean {
-  const expected = sitePassword();
+export function passwordMatches(input: string, expected: string): boolean {
   if (input.length !== expected.length) return false;
+
   let mismatch = 0;
-  for (let i = 0; i < input.length; i += 1) {
-    mismatch |= input.charCodeAt(i) ^ expected.charCodeAt(i);
+  for (let index = 0; index < input.length; index += 1) {
+    mismatch |= input.charCodeAt(index) ^ expected.charCodeAt(index);
   }
   return mismatch === 0;
 }

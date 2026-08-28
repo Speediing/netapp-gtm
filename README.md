@@ -1,31 +1,38 @@
-# Grok Bot for Datadog GTM
+# NetApp x SpaceXAI
 
-Passworded site. Grok Bot from SpaceXAI, for Datadog GTM.
-
-## What it is
-
-Three GTM jobs on one page. Each job has a short problem statement, an interactive Grok Bot demo, and the matching Krista Letz clips under that demo. Below that: a light index of the clips and the public Grok Bot quote wall.
+Password-protected GTM working session for NetApp. The app keeps the supplied
+Next.js 15.5 source architecture, Geist fonts, vGPU hero effect, protected
+route group, and private media route.
 
 ## Run locally
 
+1. Install dependencies with `npm install`.
+2. Set `SITE_PASSWORD` in `.env.local`.
+3. Start the app with `npm run dev`.
+4. Open `http://localhost:3000`.
+
+The app fails closed when `SITE_PASSWORD` is missing.
+
+## Verify the source
+
+Run the architecture and residue check:
+
 ```bash
-cp .env.example .env.local
-npm install
-npm run dev
+npm run verify:architecture
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Default password is `land2expand` (override with `SITE_PASSWORD`).
+The check holds the framework versions, the scene component chain, the
+password boundary, the official wordmark hash, and the customer residue rules.
 
-## Krista clips
+## Brand assets
 
-Download into `private/media/krista-clips/` from the GitHub release (served only through the passworded `/api/media/...` route):
+`public/brand/netapp-wordmark.svg` is the official horizontal NetApp wordmark
+from [NetApp](https://www.netapp.com). The partner mark remains the supplied
+SpaceXAI asset. The hero uses the approved NetApp watercolor in
+`public/brand/netapp-watercolor-header.jpg`.
 
-```bash
-gh release download krista-gtm-clips-720p-2026-08-26 \
-  --repo Speediing/grok-bot-quotes \
-  --dir private/media/krista-clips
-```
+## Private media
 
-## Deploy
-
-Preview only under the `jasonwiker` Vercel team, project name `datadog-cro`. Set `SITE_PASSWORD=land2expand`. Do not promote to a public production domain until Jason says so.
+Store approved video files under `private/media`. The authenticated
+`/api/media/...` route serves those files. Do not put private media in
+`public`.

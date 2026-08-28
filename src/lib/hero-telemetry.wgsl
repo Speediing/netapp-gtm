@@ -5,69 +5,21 @@ struct Params {
 
 @group(0) @binding(0) var<uniform> params: Params;
 
-fn sdBox(p: vec2f, b: vec2f) -> f32 {
-  let d = abs(p) - b;
-  return length(max(d, vec2f(0.0))) + min(max(d.x, d.y), 0.0);
-}
-
-fn sdRoundedBox(p: vec2f, b: vec2f, r: f32) -> f32 {
-  return sdBox(p, max(b - vec2f(r), vec2f(0.0))) - r;
-}
-
-fn sdEllipse(p: vec2f, ab: vec2f) -> f32 {
-  return (length(p / ab) - 1.0) * min(ab.x, ab.y);
-}
-
-fn opSmoothUnion(d1: f32, d2: f32, k: f32) -> f32 {
-  let h = clamp(0.5 + 0.5 * (d2 - d1) / k, 0.0, 1.0);
-  return mix(d2, d1, h) - k * h * (1.0 - h);
-}
-
-fn opSmoothSub(d1: f32, d2: f32, k: f32) -> f32 {
-  let h = clamp(0.5 - 0.5 * (d2 + d1) / k, 0.0, 1.0);
-  return mix(d1, -d2, h) + k * h * (1.0 - h);
-}
-
-fn rotate(p: vec2f, a: f32) -> vec2f {
-  let c = cos(a);
-  let s = sin(a);
-  return vec2f(c * p.x + s * p.y, -s * p.x + c * p.y);
-}
-
 fn hash21(p: vec2f) -> f32 {
   return fract(sin(dot(p, vec2f(127.1, 311.7))) * 43758.5453);
-}
-
-fn datadogMark(p: vec2f) -> f32 {
-  let q = rotate(p, -0.14);
-  let plate = sdRoundedBox(q, vec2f(0.20, 0.20), 0.055);
-  let head = sdEllipse(q - vec2f(0.0, -0.01), vec2f(0.105, 0.125));
-  let ear = sdEllipse(rotate(q - vec2f(-0.07, -0.10), 0.5), vec2f(0.055, 0.085));
-  let snout = sdEllipse(q - vec2f(0.10, 0.04), vec2f(0.08, 0.055));
-  let body = opSmoothUnion(opSmoothUnion(head, ear, 0.03), snout, 0.04);
-  var mark = opSmoothSub(plate, body, 0.012);
-  let screen = sdRoundedBox(q - vec2f(0.07, 0.11), vec2f(0.075, 0.055), 0.01);
-  let bezel = sdRoundedBox(q - vec2f(0.07, 0.11), vec2f(0.088, 0.068), 0.014);
-  mark = opSmoothUnion(mark, bezel, 0.01);
-  mark = opSmoothSub(mark, screen, 0.008);
-  return mark;
 }
 
 fn ribbons(p: vec2f, t: f32) -> f32 {
   var acc = 0.0;
   for (var i = 0; i < 5; i = i + 1) {
     let fi = f32(i);
-    let y0 = -0.30 + fi * 0.135;
-    let amp = 0.032 + fi * 0.007;
-    let freq = 5.4 + fi * 1.65;
-    let speed = 0.28 + fi * 0.09;
-    let y = y0 + amp * sin(p.x * freq + t * speed + fi * 1.1);
-    let d = abs(p.y - y);
-    acc += (1.0 - smoothstep(0.0, 0.0032, d)) * (0.28 - fi * 0.03);
-    let tick = abs(fract(p.x * 2.6 + t * 0.07 + fi * 0.18) - 0.5);
-    acc += (1.0 - smoothstep(0.0, 0.0018, abs(d - 0.014)))
-      * (1.0 - smoothstep(0.45, 0.5, tick))
-      * 0.09;
+    let y0 = -0.26 + fi * 0.12;
+    let amp = 0.026 + fi * 0.006;
+    let freq = 5.0 + fi * 1.5;
+    let speed = 0.22 + fi * 0.07;
+    let y = y0 + amp * sin(p.x * freq + t * speed + fi);
+    let distance = abs(p.y - y);
+    acc += (1.0 - smoothstep(0.0, 0.003, distance)) * (0.24 - fi * 0.025);
   }
   return acc;
 }
@@ -76,26 +28,20 @@ fn ribbons(p: vec2f, t: f32) -> f32 {
 fn fs_main(@location(0) uv: vec2f) -> @location(0) vec4f {
   let aspect = params.texel.y / max(params.texel.x, 1.0e-6);
   let p = (uv - vec2f(0.5)) * vec2f(aspect, 1.0);
-  let t = params.time;
-
-  let breathe = 1.0 + 0.02 * sin(t * 0.85);
-  let dogP = (p - vec2f(0.46, -0.12)) / breathe;
-  let dDog = datadogMark(dogP);
-  let fill = 1.0 - smoothstep(-0.0015, 0.004, dDog);
-  let line = 1.0 - smoothstep(0.0, 0.0055, abs(dDog));
-  let glow = exp(-max(dDog, 0.0) * 16.0);
-
-  let traces = ribbons(p, t);
+  let traces = ribbons(p, params.time);
   let cell = floor(uv * vec2f(32.0, 18.0));
-  let h = hash21(cell);
-  let spark = step(0.972, h) * (0.45 + 0.55 * sin(t * 1.8 + h * 40.0));
+  let noise = hash21(cell);
+  let pulse = 0.5 + 0.5 * sin(params.time * 1.4 + noise * 36.0);
+  let spark = step(0.974, noise) * pulse;
+  let edgeFade = smoothstep(0.02, 0.22, uv.x) * smoothstep(0.98, 0.74, uv.x);
+  let topFade = smoothstep(0.02, 0.18, uv.y) * smoothstep(0.84, 0.58, uv.y);
 
-  let purple = vec3f(0.388235, 0.172549, 0.650980);
-  let paper = vec3f(0.960784, 0.945098, 0.909804);
-  let leftClear = smoothstep(0.34, 0.62, uv.x);
-  var a = fill * 0.08 + line * 0.28 + glow * 0.08 + traces * 0.32 + spark * 0.06;
-  a *= 0.55 * leftClear;
-  a = clamp(a, 0.0, 0.34);
-  let col = mix(purple, paper, spark * 0.45 + line * 0.05);
-  return vec4f(col * a, a);
+  let blue = vec3f(0.309804, 0.525490, 0.776471);
+  let coral = vec3f(0.831373, 0.462745, 0.407843);
+  let color = mix(blue, coral, spark * 0.7);
+  var alpha = traces * 0.26 + spark * 0.08;
+  alpha *= edgeFade * topFade;
+  alpha = clamp(alpha, 0.0, 0.22);
+
+  return vec4f(color * alpha, alpha);
 }

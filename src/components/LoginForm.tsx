@@ -8,14 +8,21 @@ export function LoginForm() {
   const params = useSearchParams();
   const next = params.get("next") || "/";
   const errored = params.get("error") === "1";
+  const unconfigured = params.get("config") === "1";
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(errored);
+  const [error, setError] = useState(
+    unconfigured
+      ? "Site access is not configured."
+      : errored
+        ? "Wrong password. Try again."
+        : "",
+  );
   const [pending, setPending] = useState(false);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setPending(true);
-    setError(false);
+    setError("");
     const response = await fetch("/api/login", {
       method: "POST",
       headers: { "content-type": "application/json", accept: "application/json" },
@@ -23,7 +30,11 @@ export function LoginForm() {
     });
     setPending(false);
     if (!response.ok) {
-      setError(true);
+      setError(
+        response.status === 503
+          ? "Site access is not configured."
+          : "Wrong password. Try again.",
+      );
       return;
     }
     const data = (await response.json()) as { next?: string };
@@ -43,9 +54,9 @@ export function LoginForm() {
         onChange={(event) => setPassword(event.target.value)}
         required
       />
-      {error ? <p className="login-error">Wrong password. Try again.</p> : null}
+      {error ? <p className="login-error">{error}</p> : null}
       <button type="submit" disabled={pending}>
-        {pending ? "Checking…" : "Open the site"}
+        {pending ? "Checking..." : "Open the site"}
       </button>
     </form>
   );

@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { AUTH_COOKIE, passwordMatches, sessionToken } from "@/lib/auth";
+import {
+  AUTH_COOKIE,
+  passwordMatches,
+  sessionToken,
+  sitePassword,
+} from "@/lib/auth";
 
 function safeNext(value: string | null | undefined): string {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
@@ -10,6 +15,20 @@ function safeNext(value: string | null | undefined): string {
 
 export async function POST(request: Request) {
   const contentType = request.headers.get("content-type") || "";
+  const configuredPassword = sitePassword();
+
+  if (!configuredPassword) {
+    if (contentType.includes("application/json")) {
+      return NextResponse.json(
+        { ok: false, error: "Site access is not configured." },
+        { status: 503 },
+      );
+    }
+    return NextResponse.redirect(new URL("/login?config=1", request.url), {
+      status: 303,
+    });
+  }
+
   let password = "";
   let next = "/";
 
@@ -23,7 +42,7 @@ export async function POST(request: Request) {
     next = safeNext(String(form.get("next") || "/"));
   }
 
-  if (!passwordMatches(password)) {
+  if (!passwordMatches(password, configuredPassword)) {
     if (contentType.includes("application/json")) {
       return NextResponse.json({ ok: false }, { status: 401 });
     }
@@ -37,7 +56,7 @@ export async function POST(request: Request) {
     ? NextResponse.json({ ok: true, next })
     : NextResponse.redirect(new URL(next, request.url), { status: 303 });
 
-  response.cookies.set(AUTH_COOKIE, await sessionToken(), {
+  response.cookies.set(AUTH_COOKIE, await sessionToken(configuredPassword), {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",

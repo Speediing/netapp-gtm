@@ -1,210 +1,98 @@
 import type { Artifact } from "@/data/types";
-import { HeardSlide } from "./HeardSlide";
 
 export function ArtifactCard({ artifact }: { artifact: Artifact }) {
-  switch (artifact.kind) {
-      case "slides":
-      return (
-        <HeardSlide slides={artifact.cards} size="sm" />
-      );
-    case "one-pager":
-      return (
-        <div className="art art-doc">
-          <p className="art-kicker">{artifact.eyebrow || "One-pager"}</p>
-          <h3 className="art-title">{artifact.title}</h3>
-          {artifact.sections.map((section) => (
-            <div key={section.heading} className="art-block">
-              <p className="art-label">{section.heading}</p>
-              <p>{section.body}</p>
-            </div>
+  if (artifact.kind === "brief") {
+    return (
+      <article className="art art-complete" data-artifact-state="complete">
+        <header className="art-complete-header">
+          <p className="art-kicker">Follow-up draft</p>
+          <span>{artifact.status}</span>
+        </header>
+        <h3 className="art-title">{artifact.title}</h3>
+        {artifact.sections.map((section) => (
+          <section key={section.heading} className="art-block">
+            <p className="art-label">{section.heading}</p>
+            <p>{section.body}</p>
+          </section>
+        ))}
+      </article>
+    );
+  }
+
+  if (artifact.kind === "answer") {
+    return (
+      <article className="art art-complete" data-artifact-state="complete">
+        <header className="art-complete-header">
+          <p className="art-kicker">Response draft</p>
+          <span>{artifact.status}</span>
+        </header>
+        <h3 className="art-title">{artifact.title}</h3>
+        <ul className="answer-checks">
+          {artifact.checks.map((check) => (
+            <li key={check.question}>
+              <p>
+                <strong>{check.question}</strong>
+                <span className={check.state === "Ready" ? "is-ready" : ""}>
+                  {check.state}
+                </span>
+              </p>
+              <small>{check.source}</small>
+            </li>
           ))}
-        </div>
-      );
-    case "packet":
-      return (
-        <div className="art art-doc">
-          <p className="art-kicker">Champion packet</p>
-          <h3 className="art-title">{artifact.title}</h3>
-          {artifact.fields.map((field) => (
-            <div key={field.label} className="art-block">
-              <p className="art-label">{field.label}</p>
-              <p>{field.value}</p>
-            </div>
-          ))}
-        </div>
-      );
-    case "table":
-      return (
-        <div className="art art-sheet">
-          <p className="art-kicker">Sheet</p>
-          <h3 className="art-title">{artifact.title}</h3>
-          <div className="art-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  {artifact.columns.map((column) => (
-                    <th key={column}>{column}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {artifact.rows.map((row, index) => (
-                  <tr key={index}>
-                    {row.map((cell, cellIndex) => (
-                      <td key={cellIndex}>{cell}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {artifact.caption ? (
-            <p className="art-caption">{artifact.caption}</p>
-          ) : null}
-        </div>
-      );
-    case "talk-tracks":
-      return (
-        <div className="art art-tracks">
-          <p className="art-kicker">{artifact.title}</p>
-          <ul>
-            {artifact.tracks.map((track) => (
-              <li key={track.seat}>
-                <p className="art-label">{track.seat}</p>
-                <p>{track.line}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      );
-    case "forecast":
-      return (
-        <div className="art art-forecast">
-          <p className="art-kicker">{artifact.title}</p>
-          <p className="forecast-status">{artifact.status}</p>
-          <p className="forecast-body">{artifact.body}</p>
-        </div>
-      );
-    case "gaps":
-      return (
-        <div className="art art-gaps">
-          <p className="art-kicker">{artifact.title}</p>
-          <ul>
-            {artifact.items.map((item) => (
-              <li key={item.label}>
-                <p className="art-label">{item.label}</p>
-                <p>{item.body}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      );
-    case "questions":
-      return (
-        <div className="art art-questions">
-          <p className="art-kicker">{artifact.title}</p>
-          <ol>
-            {artifact.items.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ol>
-        </div>
-      );
-    case "scorecard":
-      return (
-        <div className="art art-score">
-          <p className="art-kicker">{artifact.title}</p>
-          <p className="score-line">{artifact.score}</p>
-          <ul className="score-notes">
-            {artifact.notes.map((note) => (
-              <li key={note}>{note}</li>
-            ))}
-          </ul>
-          <p className="art-label">Say this instead</p>
-          <p className="better-answer">{artifact.betterAnswer}</p>
-        </div>
-      );
-    case "deal-kit":
-      return (
-        <div className="art art-kit">
-          <p className="art-kicker">{artifact.title}</p>
-          {artifact.weeks.map((week) => (
-            <div key={week.label} className="art-block">
-              <p className="art-label">{week.label}</p>
-              <p>{week.body}</p>
-            </div>
-          ))}
-          <p className="art-label">In the pack</p>
-          <ul className="kit-pack">
-            {artifact.pack.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </div>
-      );
-    case "gmail":
-      return (
-        <div className="art art-gmail">
-          <p className="art-kicker">Gmail draft</p>
+        </ul>
+        <div className="art-reply">
+          <p className="art-label">Draft reply</p>
           <p className="mail-row">
             <span>To</span>
-            {artifact.to}
+            {artifact.reply.to}
           </p>
           <p className="mail-row">
             <span>Subject</span>
-            {artifact.subject}
+            {artifact.reply.subject}
           </p>
-          <p className="mail-body">{artifact.body}</p>
+          <p>{artifact.reply.body}</p>
         </div>
-      );
-    case "slack":
-      return (
-        <div className="art art-slack">
-          <p className="art-kicker">Slack draft</p>
-          <p className="slack-channel">{artifact.channel}</p>
-          <p className="slack-body">{artifact.body}</p>
-        </div>
-      );
-    case "redlines":
-      return (
-        <div className="art art-doc">
-          <p className="art-kicker">{artifact.title}</p>
-          <ul>
-            {artifact.marks.map((mark) => (
-              <li key={mark.text}>
-                <p className="art-label">{mark.take ? "Answer" : "Hold"}</p>
-                <p>{mark.note}</p>
-              </li>
-            ))}
-          </ul>
-          <p className="art-caption">{artifact.reply.subject}</p>
-        </div>
-      );
-    case "linkedin":
-      return (
-        <div className="art art-gmail">
-          <p className="art-kicker">LinkedIn draft</p>
-          <p className="mail-row">
-            <span>To</span>
-            {artifact.to}
-            {artifact.role ? ` · ${artifact.role}` : ""}
-          </p>
-          <p className="mail-body">{artifact.body}</p>
-        </div>
-      );
-    case "outbound":
-      return (
-        <div className="art art-doc">
-          <p className="art-kicker">{artifact.title}</p>
-          {artifact.hypothesis.map((item) => (
-            <div key={item.k} className="art-block">
-              <p className="art-label">{item.k}</p>
-              <p>{item.body}</p>
-            </div>
-          ))}
-        </div>
-      );
-    default:
-      return null;
+      </article>
+    );
   }
+
+  return (
+    <article className="art art-complete" data-artifact-state="complete">
+      <header className="art-complete-header">
+        <p className="art-kicker">Account brief</p>
+        <span>{artifact.status}</span>
+      </header>
+      <h3 className="art-title">
+        {artifact.account}. {artifact.title}
+      </h3>
+      <div className="account-brief-grid">
+        <section>
+          <p className="art-label">Sources</p>
+          {artifact.sources.map((source) => (
+            <p key={source.label} className="account-brief-row">
+              <strong>{source.label}</strong>
+              <span>{source.finding}</span>
+            </p>
+          ))}
+        </section>
+        <section>
+          <p className="art-label">Roles to check</p>
+          {artifact.audiences.map((audience) => (
+            <p key={audience.role} className="account-brief-row">
+              <strong>{audience.role}</strong>
+              <span>{audience.reason}</span>
+            </p>
+          ))}
+        </section>
+      </div>
+      <div className="art-reply">
+        <p className="art-label">Outreach draft</p>
+        <p className="mail-row">
+          <span>Subject</span>
+          {artifact.outreach.subject}
+        </p>
+        <p>{artifact.outreach.body}</p>
+      </div>
+    </article>
+  );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { beatFor } from "@/data/screens";
-import type { CroJob, Participant } from "@/data/types";
+import type { GtmJob, Participant } from "@/data/types";
 import type { DemoPlayback } from "@/hooks/useDemoPlayback";
 import { DEFAULT_ACCOUNT } from "@/lib/account";
 import { ArtifactCard } from "./ArtifactCard";
@@ -104,8 +104,7 @@ function Thread({
       {visible.map((message) => {
         const who = people[message.from];
         const isYou = who?.role === "you";
-        const isSystem =
-          message.kind === "system" || message.kind === "routine";
+        const isSystem = message.kind === "routine";
 
         if (isSystem) {
           return (
@@ -152,12 +151,6 @@ function Thread({
             {!isYou ? <GrokFace /> : null}
             <div className={`msg-bubble ${isYou ? "out" : "in"}`}>
               {message.body}
-              {message.artifact ? (
-                <ArtifactCard artifact={message.artifact} />
-              ) : null}
-              {message.kind === "handoff" ? (
-                <p className="msg-handoff">Handoff</p>
-              ) : null}
             </div>
           </div>
         );
@@ -180,7 +173,7 @@ export function GrokBotWindow({
   job,
   playback,
 }: {
-  job: CroJob;
+  job: GtmJob;
   playback: DemoPlayback;
 }) {
   const {

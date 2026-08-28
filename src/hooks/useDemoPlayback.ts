@@ -13,7 +13,7 @@ function defaultDelay(message: DemoMessage, people: Record<string, Participant>)
     const chars = (message.body || "").length;
     return Math.min(2200, Math.max(1600, 1400 + chars * 8));
   }
-  if (message.kind === "system" || message.kind === "routine") return 1500;
+  if (message.kind === "routine") return 1500;
   return 1300;
 }
 
@@ -56,7 +56,6 @@ export function useDemoPlayback(thread: DemoThread) {
     const showTyping =
       who?.role === "bot" ||
       next.kind === "draft" ||
-      next.kind === "handoff" ||
       next.kind === "routine";
     const wait = defaultDelay(next, people);
     const timers: number[] = [];

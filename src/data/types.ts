@@ -1,260 +1,182 @@
-export type ClipId =
-  | "01-morning-inbox"
-  | "02-prospecting-pg"
-  | "03-slides-granola"
-  | "04-engineer-bugbot"
-  | "05-forecast-sfdc"
-  | "06-customer-expert"
-  | "07-customer-exec-brief"
-  | "08-chief-groupchat";
-
 export type JobId =
-  | "standardize-room"
-  | "legal-redlines"
-  | "attach-engine";
-
-export type ParticipantRole = "you" | "bot";
+  | "call-follow-up"
+  | "sourced-answer"
+  | "account-brief";
 
 export type Participant = {
   id: string;
   name: string;
-  role: ParticipantRole;
-  persona?: string;
+  role: "you" | "bot";
   color?: string;
-};
-
-export type MessageKind = "text" | "draft" | "routine" | "handoff" | "system";
-
-export type SlideVoice = "them" | "us";
-
-export type SlideCard = {
-  n: number;
-  title: string;
-  body: string;
-  kicker?: string;
-  voice?: SlideVoice;
 };
 
 export type StoryScene =
   | "call"
-  | "demo"
-  | "voice"
   | "notes"
-  | "deck"
-  | "map"
-  | "inspect"
-  | "launch"
-  | "drill"
+  | "sources"
+  | "draft"
+  | "research"
   | "send";
 
 export type StoryVisual =
   | {
       kind: "live-call";
       title: string;
-      people: { initials: string; name: string }[];
+      people: { initials: string; role: string }[];
     }
   | {
-      kind: "live-transcript";
-      timestamp: string;
-      speaker: string;
-      quote: string;
+      kind: "live-note";
+      title: string;
+      summary: string;
       signals: string[];
     }
   | {
-      kind: "deck-update";
-      eyebrow: string;
-      headline: string;
-      product: string;
+      kind: "work-progress";
+      app: string;
+      task: string;
       status: string;
     }
   | {
-      kind: "procurement-email";
+      kind: "request-inbox";
       sender: string;
       subject: string;
-      questions: number;
+      items: string[];
     }
   | {
-      kind: "answers-found";
-      sources: { name: string; answer: string }[];
-      status: string;
+      kind: "source-review";
+      sources: { name: string; status: string }[];
+      state: string;
     }
   | {
-      kind: "reply-ready";
-      to: string;
-      subject: string;
+      kind: "draft-ready";
+      title: string;
+      detail: string;
       status: string;
     }
   | {
       kind: "account-research";
       account: string;
       sources: string[];
-      signal: string;
+      state: string;
     }
   | {
-      kind: "three-why";
-      items: { label: string; answer: string }[];
+      kind: "brief-building";
+      sections: string[];
+      status: string;
     }
   | {
       kind: "outreach-ready";
-      person: string;
+      audience: string;
       channels: string[];
       status: string;
     };
 
+export type BriefArtifact = {
+  kind: "brief";
+  title: string;
+  status: "Complete draft";
+  sections: { heading: string; body: string }[];
+};
+
+export type AnswerArtifact = {
+  kind: "answer";
+  title: string;
+  status: "Complete draft";
+  checks: {
+    question: string;
+    state: "Ready" | "Needs review";
+    source: string;
+  }[];
+  reply: {
+    to: string;
+    subject: string;
+    body: string;
+  };
+};
+
+export type AccountArtifact = {
+  kind: "account";
+  title: string;
+  account: string;
+  status: "Complete draft";
+  sources: { label: string; finding: string }[];
+  audiences: { role: string; reason: string }[];
+  outreach: {
+    subject: string;
+    body: string;
+  };
+};
+
+export type Artifact = BriefArtifact | AnswerArtifact | AccountArtifact;
+
 export type StoryBeat = {
   label: string;
   scene: StoryScene;
-  when?: string;
-  slides?: SlideCard[];
-  artifact?: Artifact;
-  visual?: StoryVisual;
+  when: string;
+  visual: StoryVisual;
 };
 
-export type Artifact =
-  | {
-      kind: "slides";
-      title: string;
-      cards: SlideCard[];
-    }
-  | {
-      kind: "one-pager";
-      title: string;
-      eyebrow?: string;
-      sections: { heading: string; body: string }[];
-    }
-  | {
-      kind: "packet";
-      title: string;
-      fields: { label: string; value: string }[];
-    }
-  | {
-      kind: "table";
-      title: string;
-      caption?: string;
-      columns: string[];
-      rows: string[][];
-    }
-  | {
-      kind: "outbound";
-      title: string;
-      account: string;
-      hypothesis: { k: string; body: string }[];
-      evidence: { source: string; finding: string }[];
-      targets: { name: string; role: string; why: string }[];
-      page: { headline: string; body: string };
-    }
-  | {
-      kind: "linkedin";
-      title: string;
-      to: string;
-      role?: string;
-      body: string;
-    }
-  | {
-      kind: "talk-tracks";
-      title: string;
-      tracks: { seat: string; line: string }[];
-    }
-  | {
-      kind: "forecast";
-      title: string;
-      status: string;
-      body: string;
-      account?: string;
-      amount?: string;
-      gaps?: { label: string; body: string }[];
-    }
-  | {
-      kind: "gaps";
-      title: string;
-      items: { label: string; body: string }[];
-    }
-  | {
-      kind: "questions";
-      title: string;
-      items: string[];
-    }
-  | {
-      kind: "scorecard";
-      title: string;
-      score: string;
-      notes: string[];
-      betterAnswer: string;
-      weakLine?: string;
-    }
-  | {
-      kind: "deal-kit";
-      title: string;
-      weeks: { label: string; body: string }[];
-      pack: string[];
-    }
-  | {
-      kind: "redlines";
-      title: string;
-      paperTitle: string;
-      from: string;
-      marks: { text: string; note: string; take: boolean }[];
-      reply: { to: string; subject: string; body: string };
-    }
-  | {
-      kind: "gmail";
-      title: string;
-      to: string;
-      subject: string;
-      body: string;
-    }
-  | {
-      kind: "slack";
-      title: string;
-      channel: string;
-      body: string;
-    };
+export type PayoffBeat = {
+  label: string;
+  scene: StoryScene;
+  when: string;
+  artifact: Artifact;
+};
 
-export type DemoMessage = {
+export type StorySequence = readonly [
+  StoryBeat,
+  StoryBeat,
+  StoryBeat,
+  PayoffBeat,
+];
+
+export type BasicMessage = {
   id: string;
   from: string;
-  kind: MessageKind;
-  body?: string;
-  draftLabel?: string;
-  artifact?: Artifact;
+  kind: "text" | "routine";
+  body: string;
   delayMs?: number;
 };
+
+export type DraftMessage = {
+  id: string;
+  from: string;
+  kind: "draft";
+  draftLabel: string;
+  body?: string;
+  artifact: Artifact;
+  delayMs?: number;
+};
+
+export type DemoMessage = BasicMessage | DraftMessage;
 
 export type DemoThread = {
   title: string;
   subtitle: string;
   participants: Participant[];
-  messages: DemoMessage[];
+  messages: readonly [
+    BasicMessage,
+    BasicMessage,
+    BasicMessage,
+    DraftMessage,
+  ];
 };
 
-export type Clip = {
-  id: ClipId;
-  file: string;
-  poster: string;
-  title: string;
-  caption: string;
+export type FleetAgent = {
+  name: string;
+  activity: string;
+  tools: readonly [string, string, string];
+  color: string;
 };
 
-export type CroJob = {
+export type GtmJob = {
   id: JobId;
-  number: number;
+  number: 1 | 2 | 3;
   title: string;
   trigger: string;
   backgroundAction: string;
-  problem: string;
-  botJob: string;
-  storyboard: StoryBeat[];
-  unlock: string;
   outcome: string;
-  clips: ClipId[];
+  storyboard: StorySequence;
+  agent: FleetAgent;
   demo: DemoThread;
-};
-
-export type Quote = {
-  name: string;
-  handle: string;
-  date: string;
-  avatar: string;
-  quote: string;
-  source: string;
 };

@@ -1,88 +1,62 @@
-import { FLEET, type FleetBot } from "@/data/fleet";
+import { JOBS } from "@/data/jobs";
 
-function initials(bot: FleetBot) {
-  if (bot.mark) return bot.mark;
-  const parts = bot.name.split(/\s+/).filter(Boolean);
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0] || ""}${parts[parts.length - 1][0] || ""}`.toUpperCase();
-}
-
-function isLight(hex: string) {
-  if (!hex.startsWith("#") || hex.length < 7) return false;
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return (r * 299 + g * 587 + b * 114) / 1000 > 180;
-}
-
-function Box({
-  bot,
-  chief = false,
-}: {
-  bot: FleetBot;
-  chief?: boolean;
-}) {
-  const className = chief ? "org-box is-chief" : "org-box";
-  const body = (
-    <>
-      <span
-        className="org-avatar"
-        style={{
-          background: bot.color,
-          color: isLight(bot.color) ? "#111" : "#fff",
-        }}
-        aria-hidden
-      >
-        {initials(bot)}
-      </span>
-      <span className="org-name">{bot.name}</span>
-      <span className="org-blurb">{bot.blurb}</span>
-    </>
-  );
-
-  if (bot.jobId) {
-    return (
-      <a className={className} href={`#${bot.jobId}`}>
-        {body}
-      </a>
-    );
-  }
-
-  return <div className={className}>{body}</div>;
-}
-
-export function RosterChart() {
-  const seat = FLEET.find((item) => item.seat);
-  const agents = FLEET.filter((item) => !item.seat);
-
-  if (!seat) return null;
-
+export function AgentFleet() {
   return (
-    <section id="roster" className="roster">
-      <h2>A background team for every sales rep</h2>
-      <p className="section-lede">
-        The work itself is the trigger. A call starts, an email lands, or an
-        account enters the list — and the right agent picks it up. They keep
-        working after the laptop closes. Drafts stay drafts until the rep sends.
-      </p>
-
-      <div className="org" role="tree">
-        <div className="org-top">
-          <Box bot={seat} chief />
-        </div>
-        <div className="org-branch">
-          <div className="org-connect" aria-hidden>
-            <i className="org-stem" />
-            <i className="org-bar" />
-          </div>
-          <ul className="org-kids">
-            {agents.map((agent) => (
-              <li key={agent.id} className="org-kid">
-                <Box bot={agent} />
-              </li>
-            ))}
-          </ul>
-        </div>
+    <section id="agent-fleet" className="agent-fleet">
+      <div className="fleet-heading">
+        <p className="eyebrow">A fleet at work</p>
+        <h2>Each agent gets a computer and a clear job.</h2>
+        <p>
+          The seller stays in control. The agents open the tools, prepare the
+          drafts, and leave each result ready to check.
+        </p>
+      </div>
+      <div className="fleet-grid">
+        {JOBS.map((job) => (
+          <a key={job.id} className="fleet-desk" href={`#${job.id}`}>
+            <header>
+              <span
+                className="fleet-agent-mark"
+                style={{ background: job.agent.color }}
+                aria-hidden
+              >
+                {String(job.number).padStart(2, "0")}
+              </span>
+              <p>
+                <strong>{job.agent.name}</strong>
+                <small>Working now</small>
+              </p>
+              <span className="fleet-status" aria-label="Working" />
+            </header>
+            <div className="fleet-computer" aria-label={`${job.agent.name} computer`}>
+              <div className="fleet-computer-bar">
+                <span />
+                <span />
+                <span />
+              </div>
+              <div className="fleet-computer-body">
+                <nav aria-label={`${job.agent.name} open tools`}>
+                  {job.agent.tools.map((tool, index) => (
+                    <span key={tool} className={index === 1 ? "is-active" : ""}>
+                      {tool}
+                    </span>
+                  ))}
+                </nav>
+                <div className="fleet-screen">
+                  <span className="fleet-screen-kicker">Current work</span>
+                  <strong>{job.agent.activity}</strong>
+                  <i />
+                  <i />
+                  <i />
+                </div>
+              </div>
+            </div>
+            <footer>
+              <span>Starts when</span>
+              {job.trigger}
+            </footer>
+          </a>
+        ))}
       </div>
     </section>
   );
