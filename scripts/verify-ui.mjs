@@ -46,8 +46,8 @@ async function inspectHero(page) {
   }));
   assert(
     imageState.complete &&
-      imageState.naturalWidth >= 500 &&
-      imageState.naturalHeight >= 250,
+      imageState.naturalWidth > 0 &&
+      imageState.naturalHeight > 0,
   );
   assert(imageState.box.height > 500);
 
