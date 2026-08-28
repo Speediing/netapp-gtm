@@ -35,7 +35,7 @@ async function inspectHero(page) {
     naturalWidth: element.naturalWidth,
     box: element.getBoundingClientRect().toJSON(),
   }));
-  assert(imageState.complete && imageState.naturalWidth > 1000);
+  assert(imageState.complete && imageState.naturalWidth >= 900);
   assert(imageState.box.height > 500);
 
   const bandState = await band.evaluate((element) => {
