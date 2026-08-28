@@ -45,6 +45,7 @@ async function inspectHero(page) {
   const imageState = await image.evaluate((element) => ({
     complete: element.complete,
     naturalWidth: element.naturalWidth,
+    naturalHeight: element.naturalHeight,
     box: element.getBoundingClientRect().toJSON(),
   }));
   assert(
