@@ -113,6 +113,7 @@ async function waitForFinalArtifact(page, workflowId, computerSelector) {
 const desktop = await browser.newContext({
   viewport: { width: 1440, height: 1100 },
   deviceScaleFactor: 1,
+  reducedMotion: "reduce",
 });
 const desktopPage = await desktop.newPage();
 await signIn(desktopPage);
@@ -215,6 +216,7 @@ await desktop.close();
 const mobile = await browser.newContext({
   viewport: { width: 390, height: 844 },
   deviceScaleFactor: 1,
+  reducedMotion: "reduce",
 });
 const mobilePage = await mobile.newPage();
 await signIn(mobilePage);
