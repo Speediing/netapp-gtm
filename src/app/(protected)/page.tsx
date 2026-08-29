@@ -1,14 +1,16 @@
 import Image from "next/image";
 import { AgentFleet } from "@/components/RosterChart";
+import { HeroDemo } from "@/components/HeroDemo";
 import { HeroTelemetry } from "@/components/HeroTelemetry";
 import { JobSection } from "@/components/JobSection";
+import { QuoteWall } from "@/components/QuoteWall";
 import { SiteNav } from "@/components/SiteNav";
 import { JOBS } from "@/data/jobs";
 
 export default function HomePage() {
   return (
     <main id="top">
-      <section className="hero-watercolor" aria-labelledby="hero-title">
+      <section className="hero-watercolor">
         <Image
           className="hero-watercolor-image"
           src="/brand/netapp-watercolor-header.jpg"
@@ -20,20 +22,15 @@ export default function HomePage() {
         />
         <HeroTelemetry />
         <SiteNav />
-        <div className="hero-paper-pin report">
-          <div className="hero-paper-band">
-            <p className="eyebrow">NetApp x SpaceXAI</p>
-            <h1 id="hero-title">Agents that keep sales work moving.</h1>
-            <p className="hero-intro">
-              Grok Bot gives each seller a fleet of agents with computers. They
-              follow approved triggers, work across the tools, and return
-              drafts for the seller to review.
-            </p>
-          </div>
-        </div>
       </section>
 
       <div className="report">
+        <div className="report-hero">
+          <section className="hero">
+            <HeroDemo />
+          </section>
+        </div>
+
         <section className="usecase-framing">
           <p className="eyebrow">Three working examples</p>
           <h2>
@@ -52,6 +49,8 @@ export default function HomePage() {
             <JobSection key={job.id} job={job} />
           ))}
         </div>
+
+        <QuoteWall />
       </div>
 
       <footer className="site-footer">
